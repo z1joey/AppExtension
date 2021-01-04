@@ -25,12 +25,12 @@ class ViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //segmentedControl.selectedSegmentIndex = preference.recipeSort.rawValue
+        segmentedControl.selectedSegmentIndex = UserPreference.recipeSort.rawValue
     }
 
     @IBAction func valueChanged(_ sender: UISegmentedControl) {
-        if let recipeSort = RecipeSort(rawValue: sender.selectedSegmentIndex) {
-            //preference.update(recipeSort)
+        if let recipeSort = UserPreference.RecipeSort(rawValue: sender.selectedSegmentIndex) {
+            UserPreference.recipeSort = recipeSort
         }
     }
 

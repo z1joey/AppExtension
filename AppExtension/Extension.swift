@@ -7,7 +7,7 @@
 
 import UIKit
 
-// MARK: -
+// MARK: First Launch
 private let firstLaunchFlag = "isFirstLaunchFlag"
 
 public extension UIApplication {
@@ -23,7 +23,7 @@ public extension UIApplication {
     }
 }
 
-// MARK: -
+// MARK: - Search History
 public class UserPreference {
     struct SearchHistory {
         static private var items: [String] {
@@ -74,13 +74,27 @@ public class UserPreference {
     }
 }
 
+// MARK: - RecipeSort
+public extension UserPreference {
+    static var recipeSort: RecipeSort {
+        set {
+            UserDefaults.standard.setValue(newValue.rawValue, forKey: UserPreferenceKey.recipeSort.rawValue)
+        }
+        get {
+            let index = UserDefaults.standard.integer(forKey: UserPreferenceKey.recipeSort.rawValue)
+            let recipeSort = UserPreference.RecipeSort(rawValue: index) ?? .lastUpdated
+            return recipeSort
+        }
+    }
+
+    enum RecipeSort: Int {
+        case lastUpdated
+        case popularity
+    }
+}
+
+// MARK: - Key
 public enum UserPreferenceKey: String {
     case recipeSort = "com.tecpal.recipeSort"
     case searchHistory = "com.tecpal.searchHistory"
-}
-
-// MARK: -
-public enum RecipeSort: Int {
-    case lastUpdated
-    case popularity
 }
