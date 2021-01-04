@@ -8,13 +8,15 @@
 import UIKit
 
 class ViewController: UIViewController {
+    @IBOutlet weak var someLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        print("all good")
+        if UIApplication.isFirstLaunch() {
+            someLabel.text = "First Launch"
+        } else {
+            someLabel.text = "Hello World"
+        }
     }
-
-
 }
-
