@@ -24,78 +24,63 @@ public extension UIApplication {
 }
 
 // MARK: -
-private let User_Preference_Key = "com.tecpal.preference"
-
 public class UserPreference {
-    static let standard = UserPreference()
-    private init() {}
+    struct SearchHistory {
+        static private var items: [String] {
+            set {
+                UserDefaults.standard.setValue(newValue, forKey: UserPreferenceKey.searchHistory.rawValue)
+            }
+            get {
+                let items = UserDefaults.standard.array(forKey: UserPreferenceKey.searchHistory.rawValue) as? [String]
+                return items ?? []
+            }
+        }
 
-    fileprivate lazy var preference: Preference = {
-        return Preference()
-    }()
+        static func getItems() -> [String] {
+            return items
+        }
 
-    var recipeSort: RecipeSort {
-        return preference.recipeSort
-    }
+        static func append(item: String?, completion: ((Bool) -> Void)? = nil) {
+            guard let item = item?.lowercased() else {
+                completion?(false)
+                return
+            }
+            guard !items.contains(item) else {
+                completion?(false)
+                return
+            }
 
-    var searchHistory: [String] {
-        return preference.searchHistory
-    }
+            var itemsCopy = items
+            itemsCopy.append(item)
+            items = itemsCopy
+            completion?(true)
+        }
 
-    func update(_ recipeSort: RecipeSort) {
-        preference.recipeSort = recipeSort
-    }
+        static func remove(atIndex index: Int, completion: ((Bool) -> Void)? = nil) {
+            guard items.indices.contains(index) else {
+                completion?(false)
+                return
+            }
 
-    func append(_ searchHistoryItem: String) {
-        var searchHistory = preference.searchHistory
-        searchHistory.append(searchHistoryItem)
-        preference.searchHistory = searchHistory
-    }
+            var itemsCopy = items
+            itemsCopy.remove(at: index)
+            items = itemsCopy
+            completion?(true)
+        }
 
-    func clearSearchHistory() {
-        preference.searchHistory = []
-    }
-}
-
-private struct Preference {
-    fileprivate var recipeSort: RecipeSort {
-        didSet { save() }
-    }
-    fileprivate var searchHistory: [String] {
-        didSet { save() }
-    }
-
-    private var userDefaults = UserDefaults.standard
-
-    fileprivate init() {
-        searchHistory = decodedPreference().searchHistory
-        recipeSort = decodedPreference().recipeSort
-    }
-
-    fileprivate init(recipeSort: RecipeSort, searchHistory: [String]) {
-        self.recipeSort = recipeSort
-        self.searchHistory = searchHistory
-    }
-
-    private func save() {
-        let encodedData: Data = NSKeyedArchiver.archivedData(withRootObject: self)
-        userDefaults.set(encodedData, forKey: User_Preference_Key)
-    }
-}
-
-private func decodedPreference() -> Preference {
-    if let decoded  = UserDefaults.standard.data(forKey: User_Preference_Key) {
-        let decodedPreference = NSKeyedUnarchiver.unarchiveObject(with: decoded)
-        if let preference = decodedPreference as? Preference {
-            return preference
+        static func clear() {
+            items = []
         }
     }
+}
 
-    return Preference(recipeSort: .lastUpdated, searchHistory: [])
+public enum UserPreferenceKey: String {
+    case recipeSort = "com.tecpal.recipeSort"
+    case searchHistory = "com.tecpal.searchHistory"
 }
 
 // MARK: -
-public enum RecipeSort: String {
+public enum RecipeSort: Int {
     case lastUpdated
     case popularity
 }
